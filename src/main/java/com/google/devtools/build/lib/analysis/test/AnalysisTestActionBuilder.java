@@ -38,7 +38,7 @@ public class AnalysisTestActionBuilder {
   public static void writeAnalysisTestAction(
       RuleContext ruleContext, AnalysisTestResultInfo testResultInfo) {
     // TODO(laszlocsomor): Use the execution platform, not the host platform.
-    boolean isExecutedOnWindows = OS.getCurrent() == OS.WINDOWS;
+    boolean isExecutedOnWindows = ruleContext.isTargetOsWindows();
     String escapedMessage =
         isExecutedOnWindows
             ? testResultInfo.getMessage().replace("%", "%%")

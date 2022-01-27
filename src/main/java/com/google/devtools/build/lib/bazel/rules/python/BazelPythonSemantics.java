@@ -225,7 +225,7 @@ public class BazelPythonSemantics implements PythonSemantics {
     // never used so we skip it.
     if (!buildPythonZip) {
       Artifact stubOutput =
-          OS.getCurrent() == OS.WINDOWS
+          ruleContext.isTargetOsWindows()
               ? common.getPythonStubArtifactForWindows(executable)
               : executable;
       createStubFile(ruleContext, stubOutput, common, /* isForZipFile= */ false);
@@ -260,7 +260,7 @@ public class BazelPythonSemantics implements PythonSemantics {
     }
 
     // On Windows, create the launcher.
-    if (OS.getCurrent() == OS.WINDOWS) {
+    if (ruleContext.isTargetOsWindows()) {
       createWindowsExeLauncher(
           ruleContext,
           // In the case where the second-stage interpreter is in runfiles, the launcher is passed

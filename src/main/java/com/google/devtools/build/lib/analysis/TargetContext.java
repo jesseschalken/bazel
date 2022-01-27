@@ -100,6 +100,10 @@ public class TargetContext {
     return configuration;
   }
 
+  public boolean isTargetOsWindows() {
+    return getConfiguration().isTargetOsWindows();
+  }
+
   public BuildConfigurationValue.Key getConfigurationKey() {
     return BuildConfigurationValue.key(configuration);
   }

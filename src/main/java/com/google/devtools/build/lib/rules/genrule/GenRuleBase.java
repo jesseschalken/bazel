@@ -47,7 +47,6 @@ import com.google.devtools.build.lib.packages.AttributeMap;
 import com.google.devtools.build.lib.packages.TargetUtils;
 import com.google.devtools.build.lib.packages.Type;
 import com.google.devtools.build.lib.util.FileTypeSet;
-import com.google.devtools.build.lib.util.OS;
 import com.google.devtools.build.lib.util.OnDemandString;
 import com.google.devtools.build.lib.util.Pair;
 import com.google.devtools.build.lib.vfs.PathFragment;
@@ -78,7 +77,7 @@ public abstract class GenRuleBase implements RuleConfiguredTargetFactory {
       RuleContext ruleContext) {
     AttributeMap attributeMap = ruleContext.attributes();
     // TODO(pcloudy): This should match the execution platform instead of using OS.getCurrent()
-    if (OS.getCurrent() == OS.WINDOWS) {
+    if (ruleContext.isTargetOsWindows()) {
       if (attributeMap.isAttributeValueExplicitlySpecified("cmd_ps")) {
         return Pair.of(CommandType.WINDOWS_POWERSHELL, "cmd_ps");
       }
