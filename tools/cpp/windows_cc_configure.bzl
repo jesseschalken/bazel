@@ -76,8 +76,7 @@ def _get_temp_env(repository_ctx):
         )
     return tmp
 
-def _get_escaped_windows_msys_starlark_content(repository_ctx, use_mingw = False):
-    """Return the content of msys cc toolchain rule."""
+def _get_msys_root(repository_ctx):
     msys_root = ""
     bazel_sh = _get_path_env_var(repository_ctx, "BAZEL_SH")
     if bazel_sh:
@@ -87,7 +86,10 @@ def _get_escaped_windows_msys_starlark_content(repository_ctx, use_mingw = False
             msys_root = tokens[0][:len(tokens[0]) - len("usr/bin")]
         elif tokens[0].endswith("/bin"):
             msys_root = tokens[0][:len(tokens[0]) - len("bin")]
+    return msys_root
 
+def _get_escaped_windows_msys_starlark_content(msys_root, use_mingw = False):
+    """Return the content of msys cc toolchain rule."""
     prefix = "mingw64" if use_mingw else "usr"
     tool_path_prefix = escape_string(msys_root) + prefix
     tool_bin_path = tool_path_prefix + "/bin"
@@ -570,8 +572,9 @@ def _get_clang_version(repository_ctx, clang_cl):
 
 def _get_msys_mingw_vars(repository_ctx):
     """Get the variables we need to populate the msys/mingw toolchains."""
-    tool_paths, tool_bin_path, inc_dir_msys = _get_escaped_windows_msys_starlark_content(repository_ctx)
-    tool_paths_mingw, tool_bin_path_mingw, inc_dir_mingw = _get_escaped_windows_msys_starlark_content(repository_ctx, use_mingw = True)
+    msys_root = _get_msys_root(repository_ctx)
+    tool_paths, tool_bin_path, inc_dir_msys = _get_escaped_windows_msys_starlark_content(msys_root)
+    tool_paths_mingw, tool_bin_path_mingw, inc_dir_mingw = _get_escaped_windows_msys_starlark_content(msys_root, use_mingw = True)
     write_builtin_include_directory_paths(repository_ctx, "mingw", [inc_dir_mingw], file_suffix = "_mingw")
     msys_mingw_vars = {
         "%{cxx_builtin_include_directories}": inc_dir_msys,
