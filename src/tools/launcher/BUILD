@@ -36,6 +36,16 @@ win_cc_library(
     ],
 )
 
+config_setting(
+    name = "msvc_compiler",
+    flag_values = {"@bazel_tools//tools/cpp:compiler": "msvc-cl"},
+)
+
+config_setting(
+    name = "clang-cl_compiler",
+    flag_values = {"@bazel_tools//tools/cpp:compiler": "clang-cl"},
+)
+
 win_cc_library(
     name = "java_launcher",
     srcs = ["java_launcher.cc"],
@@ -44,6 +54,12 @@ win_cc_library(
         ":launcher_base",
         "//src/main/native/windows:lib-process",
     ],
+    # For <filesystem>
+    copts = select({
+        ":msvc_compiler": ["/std:c++17"],
+        ":clang-cl_compiler": ["/std:c++17"],
+        "//conditions:default": ["-std=c++17"],
+    }),
 )
 
 win_cc_library(
