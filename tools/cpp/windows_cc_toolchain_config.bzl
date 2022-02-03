@@ -1330,20 +1330,10 @@ def _get_mingw_features(ctx):
         ]
 
 def _impl(ctx):
-    if _use_msvc_toolchain(ctx):
-        artifact_name_patterns = _get_msvc_artifact_name_patterns()
-    else:
-        artifact_name_patterns = _get_mingw_artifact_name_patterns()
-
-    if _use_msvc_toolchain(ctx):
-        action_configs = _get_msvc_action_configs(ctx)
-    else:
-        action_configs = []
-
-    if _use_msvc_toolchain(ctx):
-        features = _get_msvc_features(ctx)
-    else:
-        features = _get_mingw_features(ctx)
+    use_msvc = _use_msvc_toolchain(ctx)
+    artifact_name_patterns = _get_msvc_artifact_name_patterns() if use_msvc else _get_mingw_artifact_name_patterns()
+    action_configs = _get_msvc_action_configs(ctx) if use_msvc else []
+    features = _get_msvc_features(ctx) if use_msvc else _get_mingw_features(ctx)
 
     tool_paths = [
         tool_path(name = name, path = path)
