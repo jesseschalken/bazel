@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <memory>
+#include <iostream>
 
 #include "src/tools/launcher/bash_launcher.h"
 #include "src/tools/launcher/java_launcher.h"
@@ -34,6 +35,21 @@ using std::make_unique;
 using std::unique_ptr;
 
 int wmain(int argc, wchar_t* argv[]) {
+#ifdef __MINGW32__
+  bool is_mingw = true;
+#else
+  bool is_mingw = false;
+#endif
+
+#ifdef __GNUC__
+  bool is_gnu = true;
+#else
+  bool is_gnu = false;
+#endif
+
+  std::wcerr << L"is_mingw=" << is_mingw << std::endl;
+  std::wcerr << L"is_gnu=" << is_gnu << std::endl;
+
   LaunchDataParser::LaunchInfo launch_info;
 
   if (!LaunchDataParser::GetLaunchInfo(GetBinaryPathWithExtension(argv[0]),
