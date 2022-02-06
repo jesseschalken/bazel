@@ -38,8 +38,8 @@ import com.google.devtools.build.lib.vfs.PathFragment;
 
 /** Implementation for the {@code java_runtime} rule. */
 public class JavaRuntime implements RuleConfiguredTargetFactory {
-  private static String getBinJava(OS targetOs) {
-    return "bin/java" + OsUtils.executableExtension(targetOs);
+  private static String getBinJava(boolean isWindows) {
+    return "bin/java" + OsUtils.executableExtension(isWindows);
   }
 
   @Override
@@ -64,11 +64,11 @@ public class JavaRuntime implements RuleConfiguredTargetFactory {
       javaHome = javaHome.getRelative(javaHomeAttribute);
     }
 
-    OS targetOs = ruleContext.getConfiguration().getTargetOs();
+    boolean isWindows = ruleContext.isTargetOsWindows();
 
-    PathFragment javaBinaryExecPath = javaHome.getRelative(getBinJava(targetOs));
+    PathFragment javaBinaryExecPath = javaHome.getRelative(getBinJava(isWindows));
     PathFragment javaBinaryRunfilesPath =
-        getRunfilesJavaExecutable(javaHome, ruleContext.getLabel(), targetOs);
+        getRunfilesJavaExecutable(javaHome, ruleContext.getLabel(), isWindows);
 
     Artifact java = ruleContext.getPrerequisiteArtifact("java");
     if (java != null) {
@@ -136,14 +136,14 @@ public class JavaRuntime implements RuleConfiguredTargetFactory {
     return javabase.getPackageIdentifier().getExecPath(siblingRepositoryLayout);
   }
 
-  private static PathFragment getRunfilesJavaExecutable(PathFragment javaHome, Label javabase, OS targetOs) {
+  private static PathFragment getRunfilesJavaExecutable(PathFragment javaHome, Label javabase, boolean isWindows) {
     if (javaHome.isAbsolute() || javabase.getRepository().isMain()) {
-      return javaHome.getRelative(getBinJava(targetOs));
+      return javaHome.getRelative(getBinJava(isWindows));
     } else {
       return javabase
           .getRepository()
           .getRunfilesPath()
-          .getRelative(getBinJava(targetOs));
+          .getRelative(getBinJava(isWindows));
     }
   }
 }

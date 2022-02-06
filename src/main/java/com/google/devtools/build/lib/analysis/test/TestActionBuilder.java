@@ -194,7 +194,7 @@ public final class TestActionBuilder {
     // TODO(laszlocsomor), TODO(ulfjack): `isExecutedOnWindows` should use the execution platform,
     // not the host platform. Once Bazel can tell apart these platforms, fix the right side of this
     // initialization.
-    final boolean isExecutedOnWindows = config.isTargetOsWindows();
+    final boolean isExecutedOnWindows = ruleContext.isTargetOsWindows();
     final boolean isUsingTestWrapperInsteadOfTestSetupScript = isExecutedOnWindows;
 
     NestedSetBuilder<Artifact> inputsBuilder = NestedSetBuilder.stableOrder();

@@ -81,14 +81,6 @@ public class BuildConfiguration implements BuildConfigurationApi {
   private static final Interner<ImmutableSortedMap<String, String>> executionInfoInterner =
       BlazeInterners.newWeakInterner();
 
-  public OS getTargetOs() {
-    return AutoCpuConverter.reverse(getCpu()).second;
-  }
-
-  public boolean isTargetOsWindows() {
-    return getTargetOs() == OS.WINDOWS;
-  }
-
   /** Compute the default shell environment for actions from the command line options. */
   public interface ActionEnvironmentProvider {
     ActionEnvironment getActionEnvironment(BuildOptions options);
