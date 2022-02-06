@@ -101,11 +101,11 @@ toolchain(
     exec_compatible_with = [
         "@platforms//cpu:x86_64",
         "@platforms//os:windows",
-        "@bazel_tools//tools/cpp:msys",
     ],
     target_compatible_with = [
         "@platforms//cpu:x86_64",
         "@platforms//os:windows",
+        "@bazel_tools//tools/cpp:msys",
     ],
     toolchain = ":cc-compiler-x64_windows_msys",
     toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
@@ -147,11 +147,11 @@ toolchain(
     exec_compatible_with = [
         "@platforms//cpu:x86_64",
         "@platforms//os:windows",
-        "@bazel_tools//tools/cpp:mingw",
     ],
     target_compatible_with = [
         "@platforms//cpu:x86_64",
         "@platforms//os:windows",
+        "@bazel_tools//tools/cpp:mingw",
     ],
     toolchain = ":cc-compiler-x64_windows_mingw",
     toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
@@ -479,11 +479,11 @@ toolchain(
     exec_compatible_with = [
         "@platforms//cpu:x86_64",
         "@platforms//os:windows",
-        "@bazel_tools//tools/cpp:clang-cl",
     ],
     target_compatible_with = [
         "@platforms//cpu:x86_64",
         "@platforms//os:windows",
+        "@bazel_tools//tools/cpp:clang-cl",
     ],
     toolchain = ":cc-compiler-x64_windows-clang-cl",
     toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
