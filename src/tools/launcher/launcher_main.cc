@@ -35,9 +35,6 @@ using std::make_unique;
 using std::unique_ptr;
 
 int wmain(int argc, wchar_t* argv[]) {
-
-#pragma message("in launcher wmain")
-
 #ifdef __MINGW32__
   bool is_mingw = true;
 #else
