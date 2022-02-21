@@ -1,4 +1,4 @@
-load("//src/tools/launcher:win_rules.bzl", "DEFAULT_COPTS")
+load("//src/tools/launcher:win_rules.bzl", "CC_17_COPT")
 
 # Description:
 #   C++ utility source for Bazel
@@ -54,7 +54,7 @@ cc_library(
         "path.h",
         "path_platform.h",
     ],
-    copts = DEFAULT_COPTS,
+    copts = CC_17_COPT,
     visibility = [
         ":ijar",
         "//src/main/tools:__pkg__",

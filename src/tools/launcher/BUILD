@@ -1,4 +1,4 @@
-load(":win_rules.bzl", "DEFAULT_COPTS", "win_cc_binary", "win_cc_library")
+load(":win_rules.bzl", "CC_17_COPT", "win_cc_binary", "win_cc_library")
 
 filegroup(
     name = "srcs",
@@ -19,7 +19,7 @@ config_setting(
 win_cc_binary(
     name = "launcher",
     srcs = ["launcher_main.cc"],
-    copts = DEFAULT_COPTS,
+    copts = CC_17_COPT,
     features = ["fully_static_link"],
     linkstatic = True,
     visibility = [
@@ -40,7 +40,7 @@ win_cc_library(
     name = "launcher_base",
     srcs = ["launcher.cc"],
     hdrs = ["launcher.h"],
-    copts = DEFAULT_COPTS,
+    copts = CC_17_COPT,
     deps = [
         "//src/main/cpp/util:filesystem",
         "//src/tools/launcher/util",
@@ -52,7 +52,7 @@ win_cc_library(
     name = "java_launcher",
     srcs = ["java_launcher.cc"],
     hdrs = ["java_launcher.h"],
-    copts = DEFAULT_COPTS,
+    copts = CC_17_COPT,
     deps = [
         ":launcher_base",
         "//src/main/native/windows:lib-process",
@@ -63,7 +63,7 @@ win_cc_library(
     name = "python_launcher",
     srcs = ["python_launcher.cc"],
     hdrs = ["python_launcher.h"],
-    copts = DEFAULT_COPTS,
+    copts = CC_17_COPT,
     deps = [
         ":launcher_base",
         "//src/main/native/windows:lib-process",
@@ -74,6 +74,6 @@ win_cc_library(
     name = "bash_launcher",
     srcs = ["bash_launcher.cc"],
     hdrs = ["bash_launcher.h"],
-    copts = DEFAULT_COPTS,
+    copts = CC_17_COPT,
     deps = [":launcher_base"],
 )
