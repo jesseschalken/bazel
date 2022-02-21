@@ -62,3 +62,15 @@ def win_cc_test(srcs = [], deps = [], **kwargs):
         }),
         **kwargs
     )
+
+# For <filesystem>
+MSVC_COPTS = ["/std:c++17"]
+
+# For <filesystem> and make_unique on old GCC/MinGW
+GCC_COPTS = ["-std=c++17"]
+
+DEFAULT_COPTS = select({
+    "//src/tools/launcher:msvc_compiler": MSVC_COPTS,
+    "//src/tools/launcher:clang-cl_compiler": MSVC_COPTS,
+    "//conditions:default": GCC_COPTS,
+})
