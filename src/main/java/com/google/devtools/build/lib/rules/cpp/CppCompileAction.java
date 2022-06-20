@@ -62,6 +62,7 @@ import com.google.devtools.build.lib.actions.extra.CppCompileInfo;
 import com.google.devtools.build.lib.actions.extra.EnvironmentVariable;
 import com.google.devtools.build.lib.actions.extra.ExtraActionInfo;
 import com.google.devtools.build.lib.analysis.starlark.Args;
+import com.google.devtools.build.lib.bugreport.BugReport;
 import com.google.devtools.build.lib.cmdline.LabelConstants;
 import com.google.devtools.build.lib.collect.nestedset.NestedSet;
 import com.google.devtools.build.lib.collect.nestedset.NestedSetBuilder;
@@ -144,6 +145,7 @@ public class CppCompileAction extends AbstractAction implements IncludeScannable
   private final boolean usePic;
   private final boolean useHeaderModules;
   protected final boolean needsIncludeValidation;
+  private final boolean hasCoverageArtifact;
 
   private final CcCompilationContext ccCompilationContext;
   private final ImmutableList<Artifact> builtinIncludeFiles;
@@ -220,6 +222,7 @@ public class CppCompileAction extends AbstractAction implements IncludeScannable
    *     not needed during actual execution.
    * @param outputFile the object file that is written as result of the compilation
    * @param dotdFile the .d file that is generated as a side-effect of compilation
+   * @param diagnosticsFile the .dia file that is generated as a side-effect of compilation
    * @param gcnoFile the coverage notes that are written in coverage mode, can be null
    * @param dwoFile the .dwo output file where debug information is stored for Fission builds (null
    *     if Fission mode is disabled)
@@ -248,6 +251,7 @@ public class CppCompileAction extends AbstractAction implements IncludeScannable
       NestedSet<Artifact> additionalPrunableHeaders,
       Artifact outputFile,
       @Nullable Artifact dotdFile,
+      @Nullable Artifact diagnosticsFile,
       @Nullable Artifact gcnoFile,
       @Nullable Artifact dwoFile,
       @Nullable Artifact ltoIndexingFile,
@@ -267,7 +271,14 @@ public class CppCompileAction extends AbstractAction implements IncludeScannable
         NestedSetBuilder.fromNestedSet(mandatoryInputs)
             .addTransitive(inputsForInvalidation)
             .build(),
-        collectOutputs(outputFile, dotdFile, gcnoFile, dwoFile, ltoIndexingFile, additionalOutputs),
+        collectOutputs(
+            outputFile,
+            dotdFile,
+            diagnosticsFile,
+            gcnoFile,
+            dwoFile,
+            ltoIndexingFile,
+            additionalOutputs),
         env);
     Preconditions.checkNotNull(outputFile);
     this.outputFile = outputFile;
@@ -288,7 +299,13 @@ public class CppCompileAction extends AbstractAction implements IncludeScannable
         Preconditions.checkNotNull(additionalIncludeScanningRoots);
     this.compileCommandLine =
         buildCommandLine(
-            sourceFile, coptsFilter, actionName, dotdFile, featureConfiguration, variables);
+            sourceFile,
+            coptsFilter,
+            actionName,
+            dotdFile,
+            diagnosticsFile,
+            featureConfiguration,
+            variables);
     this.executionInfo = executionInfo;
     this.actionName = actionName;
     this.featureConfiguration = featureConfiguration;
@@ -306,16 +323,22 @@ public class CppCompileAction extends AbstractAction implements IncludeScannable
               .getParentDirectory()
               .getChild(outputFile.getFilename() + ".params");
     }
+    this.hasCoverageArtifact = gcnoFile != null;
   }
 
   private static ImmutableSet<Artifact> collectOutputs(
       @Nullable Artifact outputFile,
       @Nullable Artifact dotdFile,
+      @Nullable Artifact diagnosticsFile,
       @Nullable Artifact gcnoFile,
       @Nullable Artifact dwoFile,
       @Nullable Artifact ltoIndexingFile,
       ImmutableList<Artifact> additionalOutputs) {
     ImmutableSet.Builder<Artifact> outputs = ImmutableSet.builder();
+    // gcnoFile comes first because easy access to it is occasionally useful.
+    if (gcnoFile != null) {
+      outputs.add(gcnoFile);
+    }
     outputs.addAll(additionalOutputs);
     if (outputFile != null) {
       outputs.add(outputFile);
@@ -323,8 +346,8 @@ public class CppCompileAction extends AbstractAction implements IncludeScannable
     if (dotdFile != null) {
       outputs.add(dotdFile);
     }
-    if (gcnoFile != null) {
-      outputs.add(gcnoFile);
+    if (diagnosticsFile != null) {
+      outputs.add(diagnosticsFile);
     }
     if (dwoFile != null) {
       outputs.add(dwoFile);
@@ -340,6 +363,7 @@ public class CppCompileAction extends AbstractAction implements IncludeScannable
       CoptsFilter coptsFilter,
       String actionName,
       Artifact dotdFile,
+      Artifact diagnosticsFile,
       FeatureConfiguration featureConfiguration,
       CcToolchainVariables variables) {
     return CompileCommandLine.builder(sourceFile, coptsFilter, actionName, dotdFile)
@@ -1500,8 +1524,15 @@ public class CppCompileAction extends AbstractAction implements IncludeScannable
           ImmutableList.copyOf(getArguments()),
           getEffectiveEnvironment(clientEnv),
           executionInfo.build(),
+          /*runfilesSupplier=*/ null,
+          /*filesetMappings=*/ ImmutableMap.of(),
           inputs,
+          /*tools=*/ NestedSetBuilder.emptySet(Order.STABLE_ORDER),
           getOutputs(),
+          // In coverage mode, .gcno file not produced for an empty translation unit.
+          /*mandatoryOutputs=*/ hasCoverageArtifact
+          ? ImmutableSet.copyOf(getOutputs().asList().subList(1, getOutputs().size()))
+          : null,
           estimateResourceConsumptionLocal(
               enabledCppCompileResourcesEstimation(),
               getMnemonic(),
@@ -1590,27 +1621,35 @@ public class CppCompileAction extends AbstractAction implements IncludeScannable
   }
 
   /**
-   * Gcc only creates ".gcno" files if the compilation unit is non-empty. To ensure that the set of
+   * Gcc only creates a ".gcno" file if the compilation unit is non-empty. To ensure that the set of
    * outputs for a CppCompileAction remains consistent and doesn't vary dynamically depending on the
-   * _contents_ of the input files, we create empty ".gcno" files if gcc didn't create them.
+   * _contents_ of the input files, we create an empty ".gcno" file if gcc didn't create it.
    */
-  private void ensureCoverageNotesFilesExist(ActionExecutionContext actionExecutionContext)
+  private void ensureCoverageNotesFileExists(ActionExecutionContext actionExecutionContext)
       throws ActionExecutionException {
-    for (Artifact output : getOutputs()) {
-      if (output.isFileType(CppFileTypes.COVERAGE_NOTES)) { // ".gcno"
-        Path outputPath = actionExecutionContext.getInputPath(output);
-        if (outputPath.exists()) {
-          continue;
-        }
-        try {
-          FileSystemUtils.createEmptyFile(outputPath);
-        } catch (IOException e) {
-          String message = "Error creating file '" + outputPath + "': " + e.getMessage();
-          DetailedExitCode code =
-              createDetailedExitCode(message, Code.COVERAGE_NOTES_CREATION_FAILURE);
-          throw new ActionExecutionException(message, e, this, false, code);
-        }
-      }
+    if (!hasCoverageArtifact) {
+      return;
+    }
+    Artifact gcnoArtifact = getOutputs().iterator().next();
+    if (!gcnoArtifact.isFileType(CppFileTypes.COVERAGE_NOTES)) {
+      BugReport.sendBugReport(
+          new IllegalStateException(
+              "In coverage mode but gcno artifact is not first output: "
+                  + gcnoArtifact
+                  + ", "
+                  + this));
+      return;
+    }
+    Path outputPath = actionExecutionContext.getInputPath(gcnoArtifact);
+    if (outputPath.exists()) {
+      return;
+    }
+    try {
+      FileSystemUtils.createEmptyFile(outputPath);
+    } catch (IOException e) {
+      String message = "Error creating file '" + outputPath + "': " + e.getMessage();
+      DetailedExitCode code = createDetailedExitCode(message, Code.COVERAGE_NOTES_CREATION_FAILURE);
+      throw new ActionExecutionException(message, e, this, false, code);
     }
   }
 
@@ -1822,7 +1861,7 @@ public class CppCompileAction extends AbstractAction implements IncludeScannable
 
       copyTempOutErrToActionOutErr();
 
-      ensureCoverageNotesFilesExist(actionExecutionContext);
+      ensureCoverageNotesFileExists(actionExecutionContext);
 
       CppIncludeExtractionContext scanningContext =
           actionExecutionContext.getContext(CppIncludeExtractionContext.class);

@@ -1,4 +1,4 @@
-// Copyright 2019 The Bazel Authors. All rights reserved.
+// Copyright 2016 The Bazel Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,22 +11,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#include "src/main/starlark/tests/builtins_bzl/cc/cc_shared_library/test_cc_shared_library/bar3.h"
 
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-
-#include <windows.h>
-#include "src/main/native/jni.h"
-
-/*
- * Class:     com_google_devtools_build_lib_platform_SuspendCounter
- * Method:    suspendCountJNI
- * Signature: ()I
- */
-extern "C" JNIEXPORT jint JNICALL
-Java_com_google_devtools_build_lib_platform_SuspendCounter_suspendCountJNI(
-    JNIEnv *, jclass) {
-  // Currently not implemented.
-  return 0;
-}
+int bar3() { return 42; }

@@ -305,6 +305,7 @@ public abstract class CcModule
         usePic,
         /* fdoStamp= */ null,
         /* dotdFileExecPath= */ null,
+        /* diagnosticsFileExecPath= */ null,
         variablesExtensions,
         /* additionalBuildVariables= */ ImmutableMap.of(),
         /* directModuleMaps= */ ImmutableList.of(),
@@ -2300,12 +2301,17 @@ public abstract class CcModule
       Object wholeArchiveObject,
       Object additionalLinkstampDefines,
       Object onlyForDynamicLibsObject,
+      Object mainOutputObject,
       Object linkerOutputsObject,
+      Object winDefFile,
       StarlarkThread thread)
       throws InterruptedException, EvalException {
     // TODO(bazel-team): Rename always_link to alwayslink before delisting. Also it looks like the
     //  suffix parameter can be removed since we can use `name` for the same thing.
     if (checkObjectsBound(
+        // TODO(b/205690414): Keep linkedArtifactNameSuffixObject protected. Use cases that are
+        //  passing the suffix should be migrated to using mainOutput instead where the suffix is
+        //  taken into account. Then this parameter should be removed.
         linkedArtifactNameSuffixObject,
         neverLinkObject,
         alwaysLinkObject,
@@ -2313,6 +2319,8 @@ public abstract class CcModule
         nativeDepsObject,
         wholeArchiveObject,
         additionalLinkstampDefines,
+        mainOutputObject,
+        winDefFile,
         onlyForDynamicLibsObject)) {
       checkPrivateStarlarkificationAllowlist(thread);
     }
@@ -2327,6 +2335,7 @@ public abstract class CcModule
         convertFromNoneable(starlarkCcToolchainProvider, null);
     FeatureConfigurationForStarlark featureConfiguration =
         convertFromNoneable(starlarkFeatureConfiguration, null);
+    Artifact mainOutput = convertFromNoneable(mainOutputObject, null);
     Label label = getCallerLabel(actions, name);
     FdoContext fdoContext = ccToolchainProvider.getFdoContext();
     LinkTargetType dynamicLinkTargetType = null;
@@ -2406,6 +2415,8 @@ public abstract class CcModule
                     && actualFeatureConfiguration.isEnabled(CppRuleClasses.TARGETS_WINDOWS)
                     && CppHelper.useInterfaceSharedLibraries(
                         cppConfiguration, ccToolchainProvider, actualFeatureConfiguration))
+            .setDefFile(convertFromNoneable(winDefFile, null))
+            .setLinkerOutputArtifact(convertFromNoneable(mainOutput, null))
             .addLinkerOutputs(linkerOutputs);
     if (staticLinkTargetType != null) {
       helper.setShouldCreateDynamicLibrary(false).setStaticLinkType(staticLinkTargetType);

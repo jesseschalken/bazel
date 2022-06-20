@@ -44,6 +44,7 @@ public final class Bazel {
           com.google.devtools.build.lib.runtime.NoSpawnCacheModule.class,
           com.google.devtools.build.lib.runtime.CommandLogModule.class,
           com.google.devtools.build.lib.platform.SleepPreventionModule.class,
+          com.google.devtools.build.lib.platform.SystemSuspensionModule.class,
           com.google.devtools.build.lib.runtime.BazelFileSystemModule.class,
           com.google.devtools.build.lib.runtime.mobileinstall.MobileInstallModule.class,
           com.google.devtools.build.lib.bazel.BazelWorkspaceStatusModule.class,
@@ -76,7 +77,10 @@ public final class Bazel {
           com.google.devtools.build.lib.metrics.PostGCMemoryUseRecorder.GcAfterBuildModule.class,
           com.google.devtools.build.lib.packages.metrics.PackageMetricsModule.class,
           com.google.devtools.build.lib.metrics.MetricsModule.class,
-          BazelBuiltinCommandModule.class);
+          BazelBuiltinCommandModule.class,
+          // This module needs to be registered after any module submitting tasks with its {@code
+          // submit} method.
+          com.google.devtools.build.lib.runtime.BlockWaitingModule.class);
 
   public static void main(String[] args) {
     BlazeVersionInfo.setBuildInfo(tryGetBuildInfo());

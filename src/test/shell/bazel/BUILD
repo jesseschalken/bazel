@@ -39,6 +39,7 @@ filegroup(
         "//src/test/shell:bin/bazel",
     ],
     visibility = [
+        "//src/main/starlark/tests/builtins_bzl:__subpackages__",
         "//src/test/shell:__subpackages__",
     ],
 )
@@ -555,6 +556,15 @@ sh_test(
 ]
 
 sh_test(
+    name = "bazel_coverage_py_test",
+    srcs = ["bazel_coverage_py_test.sh"],
+    data = [":test-deps"],
+    tags = [
+        "no_windows",
+    ],
+)
+
+sh_test(
     name = "bazel_coverage_sh_test",
     srcs = ["bazel_coverage_sh_test.sh"],
     data = [":test-deps"],
@@ -566,6 +576,15 @@ sh_test(
 sh_test(
     name = "bazel_coverage_starlark_test",
     srcs = ["bazel_coverage_starlark_test.sh"],
+    data = [":test-deps"],
+    tags = [
+        "no_windows",
+    ],
+)
+
+sh_test(
+    name = "bazel_coverage_compatibility_test",
+    srcs = ["bazel_coverage_compatibility_test.sh"],
     data = [":test-deps"],
     tags = [
         "no_windows",
@@ -694,7 +713,10 @@ sh_test(
     name = "external_integration_test",
     size = "large",
     srcs = ["external_integration_test.sh"],
-    data = [":test-deps"],
+    data = [
+        ":test-deps",
+        "//src/test/shell/bazel/testdata:zstd_test_archive.tar.zst",
+    ],
     shard_count = 15,
     tags = [
         "no_windows",

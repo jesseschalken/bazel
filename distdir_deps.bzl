@@ -130,6 +130,7 @@ DIST_DEPS = {
         "patch_args": ["-p1"],
         "patches": [
             "//third_party/grpc:grpc_1.41.0.patch",
+            "//third_party/grpc:grpc_1.41.0.win_arm64.patch",
         ],
         "used_in": [
             "additional_distfiles",
@@ -160,17 +161,18 @@ DIST_DEPS = {
             "test_WORKSPACE_files",
         ],
     },
-    "abseil-cpp": {
-        "archive": "997aaf3a28308eba1b9156aa35ab7bca9688e9f6.tar.gz",
-        "sha256": "35f22ef5cb286f09954b7cc4c85b5a3f6221c9d4df6b8c4a1e9d399555b366ee",
+    "com_google_absl": {
+        "archive": "20211102.0.tar.gz",
+        "sha256": "dcf71b9cba8dc0ca9940c4b316a0c796be8fab42b070bb6b7cab62b48f0e66c4",
         "urls": [
-            "https://mirror.bazel.build/github.com/abseil/abseil-cpp/archive/997aaf3a28308eba1b9156aa35ab7bca9688e9f6.tar.gz",
-            "https://github.com/abseil/abseil-cpp/archive/997aaf3a28308eba1b9156aa35ab7bca9688e9f6.tar.gz",
+            "https://mirror.bazel.build/github.com/abseil/abseil-cpp/archive/refs/tags/20211102.0.tar.gz",
+            "https://github.com/abseil/abseil-cpp/archive/refs/tags/20211102.0.tar.gz",
         ],
         "used_in": [
             "additional_distfiles",
             "test_WORKSPACE_files",
         ],
+        "strip_prefix": "abseil-cpp-20211102.0",
     },
     "zstd-jni": {
         "archive": "v1.5.0-4.zip",
@@ -281,11 +283,11 @@ DIST_DEPS = {
             "remote_java_tools_test",
             "remote_java_tools_for_testing",
         ],
-        "archive": "java_tools-v11.6.zip",
-        "sha256": "a7ac5922ee01e8b8fcb546ffc264ef314d0a0c679328b7fa4c432e5f54a86067",
+        "archive": "java_tools-v11.7.1.zip",
+        "sha256": "2eede49b2d80135e0ea22180f63df26db2ed4b795c1c041b25cc653d6019fbec",
         "urls": [
-            "https://mirror.bazel.build/bazel_java_tools/releases/java/v11.6/java_tools-v11.6.zip",
-            "https://github.com/bazelbuild/java_tools/releases/download/java_v11.6/java_tools-v11.6.zip",
+            "https://mirror.bazel.build/bazel_java_tools/releases/java/v11.7.1/java_tools-v11.7.1.zip",
+            "https://github.com/bazelbuild/java_tools/releases/download/java_v11.7.1/java_tools-v11.7.1.zip",
         ],
         "used_in": [
             "additional_distfiles",
@@ -297,11 +299,11 @@ DIST_DEPS = {
             "remote_java_tools_test_linux",
             "remote_java_tools_linux_for_testing",
         ],
-        "archive": "java_tools_linux-v11.6.zip",
-        "sha256": "15da4f84a7d39cd179acf3035d9def638eea6ba89a0ed8f4e8a8e6e1d6c8e328",
+        "archive": "java_tools_linux-v11.7.1.zip",
+        "sha256": "f78077f0c043d0d13c82de0ee4a99753e66bb18ec46e3601fa2a10e7f26798a8",
         "urls": [
-            "https://mirror.bazel.build/bazel_java_tools/releases/java/v11.6/java_tools_linux-v11.6.zip",
-            "https://github.com/bazelbuild/java_tools/releases/download/java_v11.6/java_tools_linux-v11.6.zip",
+            "https://mirror.bazel.build/bazel_java_tools/releases/java/v11.7.1/java_tools_linux-v11.7.1.zip",
+            "https://github.com/bazelbuild/java_tools/releases/download/java_v11.7.1/java_tools_linux-v11.7.1.zip",
         ],
         "used_in": [
             "additional_distfiles",
@@ -313,11 +315,11 @@ DIST_DEPS = {
             "remote_java_tools_test_windows",
             "remote_java_tools_windows_for_testing",
         ],
-        "archive": "java_tools_windows-v11.6.zip",
-        "sha256": "939f9d91f0df02851bbad8f5b1d26d24011329394cafe5668c1234e31ac2a1f7",
+        "archive": "java_tools_windows-v11.7.1.zip",
+        "sha256": "a7086734866505292ee4c206328c73c6af127e69bd51b98c9c186ae4b9b6d2db",
         "urls": [
-            "https://mirror.bazel.build/bazel_java_tools/releases/java/v11.6/java_tools_windows-v11.6.zip",
-            "https://github.com/bazelbuild/java_tools/releases/download/java_v11.6/java_tools_windows-v11.6.zip",
+            "https://mirror.bazel.build/bazel_java_tools/releases/java/v11.7.1/java_tools_windows-v11.7.1.zip",
+            "https://github.com/bazelbuild/java_tools/releases/download/java_v11.7.1/java_tools_windows-v11.7.1.zip",
         ],
         "used_in": [
             "additional_distfiles",
@@ -329,16 +331,44 @@ DIST_DEPS = {
             "remote_java_tools_test_darwin",
             "remote_java_tools_darwin_for_testing",
         ],
-        "archive": "java_tools_darwin-v11.6.zip",
-        "sha256": "f17ee54582b61f1ebd84c8fa2c54df796914cfbaac3cb821fb1286b55b080bc0",
+        "archive": "java_tools_darwin-v11.7.1.zip",
+        "sha256": "4d6d388b54ad3b9aa35b30dd67af8d71c4c240df8cfb5000bbec67bdd5c53a73",
         "urls": [
-            "https://mirror.bazel.build/bazel_java_tools/releases/java/v11.6/java_tools_darwin-v11.6.zip",
-            "https://github.com/bazelbuild/java_tools/releases/download/java_v11.6/java_tools_darwin-v11.6.zip",
+            "https://mirror.bazel.build/bazel_java_tools/releases/java/v11.7.1/java_tools_darwin-v11.7.1.zip",
+            "https://github.com/bazelbuild/java_tools/releases/download/java_v11.7.1/java_tools_darwin-v11.7.1.zip",
         ],
         "used_in": [
             "additional_distfiles",
             "test_WORKSPACE_files",
         ],
+    },
+    "remotejdk17_win_arm64": {
+        "aliases": [
+            "remotejdk17_win_arm64_for_testing",
+            "openjdk17_windows_arm64_archive",
+            "openjdk_win_arm64_vanilla",
+        ],
+        "archive": "zulu17.30.15-ca-jdk17.0.1-win_aarch64.zip",
+        "sha256": "811d7e7591bac4f081dfb00ba6bd15b6fc5969e1f89f0f327ef75147027c3877",
+        "strip_prefix": "zulu17.30.15-ca-jdk17.0.1-win_aarch64",
+        "urls": [
+            "https://mirror.bazel.build/cdn.azul.com/zulu/bin/zulu17.30.15-ca-jdk17.0.1-win_aarch64.zip",
+            "https://cdn.azul.com/zulu/bin/zulu17.30.15-ca-jdk17.0.1-win_aarch64.zip",
+        ],
+        "used_in": ["test_WORKSPACE_files"],
+    },
+    "remotejdk11_win_arm64": {
+        "aliases": [
+            "remotejdk11_win_arm64_for_testing",
+            "openjdk11_windows_arm64_archive",
+        ],
+        "archive": "microsoft-jdk-11.0.13.8.1-windows-aarch64.zip",
+        "sha256": "b8a28e6e767d90acf793ea6f5bed0bb595ba0ba5ebdf8b99f395266161e53ec2",
+        "strip_prefix": "jdk-11.0.13+8",
+        "urls": [
+            "https://mirror.bazel.build/aka.ms/download-jdk/microsoft-jdk-11.0.13.8.1-windows-aarch64.zip",
+        ],
+        "used_in": ["test_WORKSPACE_files"],
     },
 }
 

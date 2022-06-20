@@ -1992,6 +1992,37 @@ public class CcLibraryConfiguredTargetTest extends BuildViewTestCase {
   }
 
   @Test
+  public void testImplementationDepsConfigurationHostSucceeds() throws Exception {
+    useConfiguration("--experimental_cc_implementation_deps");
+    scratch.file(
+        "foo/BUILD",
+        "cc_binary(",
+        "    name = 'bin',",
+        "    srcs = ['bin.cc'],",
+        "    deps = ['lib'],",
+        ")",
+        "cc_library(",
+        "    name = 'lib',",
+        "    srcs = ['lib.cc'],",
+        "    deps = ['public_dep'],",
+        ")",
+        "cc_library(",
+        "    name = 'public_dep',",
+        "    srcs = ['public_dep.cc'],",
+        "    hdrs = ['public_dep.h'],",
+        "    implementation_deps = ['implementation_dep'],",
+        ")",
+        "cc_library(",
+        "    name = 'implementation_dep',",
+        "    srcs = ['implementation_dep.cc'],",
+        "    hdrs = ['implementation_dep.h'],",
+        ")");
+
+    getHostConfiguredTarget("//foo:bin");
+    assertDoesNotContainEvent("requires --experimental_cc_implementation_deps");
+  }
+
+  @Test
   public void testImplementationDepsFailsWithoutFlag() throws Exception {
     scratch.file(
         "foo/BUILD",
@@ -2147,7 +2178,7 @@ public class CcLibraryConfiguredTargetTest extends BuildViewTestCase {
     List<String> linkArgv = action.getLinkCommandLine().arguments();
     assertThat(linkArgv).contains("-Wl,-rpath,$ORIGIN/../_solib_k8/");
     assertThat(Joiner.on(" ").join(linkArgv))
-        .contains("-Wl,-rpath,$ORIGIN/../_solib_k8/../../../k8-fastbuild-ST-");
+        .contains("-Wl,-rpath,$ORIGIN/../../../k8-fastbuild-ST-");
     assertThat(Joiner.on(" ").join(linkArgv))
         .contains("-L" + TestConstants.PRODUCT_NAME + "-out/k8-fastbuild-ST-");
     assertThat(Joiner.on(" ").join(linkArgv)).containsMatch("-lST-[0-9a-f]+_transition_Slibdep2");
