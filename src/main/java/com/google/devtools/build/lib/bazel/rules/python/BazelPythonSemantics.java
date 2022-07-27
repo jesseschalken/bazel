@@ -237,7 +237,7 @@ public class BazelPythonSemantics implements PythonSemantics {
     if (buildPythonZip) {
       Artifact zipFile = common.getPythonZipArtifact(executable);
 
-      if (OS.getCurrent() != OS.WINDOWS) {
+      if (!ruleContext.isTargetOsWindows()) {
         PathFragment shExecutable = ShToolchain.getPathOrError(ruleContext);
         String pythonExecutableName = "python3";
         // NOTE: keep the following line intact to support nix builds
