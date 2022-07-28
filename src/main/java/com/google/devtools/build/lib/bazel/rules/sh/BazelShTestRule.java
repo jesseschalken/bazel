@@ -35,7 +35,7 @@ public final class BazelShTestRule implements RuleDefinition {
         .add(attr(":lcov_merger", LABEL).value(BaseRuleClasses.getCoverageOutputGeneratorLabel()))
         .add(
             attr("$launcher", LABEL)
-                .cfg(HostTransition.createFactory())
+                //.cfg(HostTransition.createFactory())
                 .value(environment.getToolsLabel("//tools/launcher:launcher")))
         // Add the script as an attribute in order for sh_test to output code coverage results for
         // code covered by CC binaries invocations.

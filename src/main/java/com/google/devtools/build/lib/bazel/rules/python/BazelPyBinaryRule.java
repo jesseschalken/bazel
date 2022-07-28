@@ -48,7 +48,7 @@ public final class BazelPyBinaryRule implements RuleDefinition {
                 .value(env.getToolsLabel("//tools/zip:zipper")))
         .add(
             attr("$launcher", LABEL)
-                .cfg(HostTransition.createFactory())
+                //.cfg(HostTransition.createFactory())
                 .value(env.getToolsLabel("//tools/launcher:launcher")))
         .build();
   }
